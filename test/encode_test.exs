@@ -276,35 +276,14 @@ defmodule AvroEx.Encode.Test do
   end
 
   describe "encode (map)" do
-    test "encodes the count as a long" do
+    test "properly encodes the length, key-value pairs, and terminal byte" do
       {:ok, schema} = AvroEx.parse_schema(~S({"type": "map", "values": "int"}))
-      {:ok, long_schema} = AvroEx.parse_schema(~S("long"))
-      {:ok, expected_count} = @test_module.encode(long_schema, 3)
-
-      {:ok, <<actual_count::8, _rest::binary>>} =
-        @test_module.encode(schema, %{"value1" => 1, "value2" => 2, "value3" => 3})
-
-      assert expected_count == <<actual_count>>
-    end
-
-    test "encodes the key-value pair correctly" do
-      {:ok, schema} = AvroEx.parse_schema(~S({"type": "map", "values": "int"}))
-      {:ok, string_schema} = AvroEx.parse_schema(~S("string"))
-      {:ok, int_schema} = AvroEx.parse_schema(~S("int"))
-      {:ok, expected_key} = @test_module.encode(string_schema, "value1")
-      {:ok, expected_value} = @test_module.encode(int_schema, 1)
-      {:ok, <<_count::8, rest::binary>>} = @test_module.encode(schema, %{"value1" => 1})
-
-      assert rest == expected_key <> expected_value
+      assert {:ok, <<2, 12, 118, 97, 108, 117, 101, 49, 2, 0>>} = @test_module.encode(schema, %{"value1" => 1})
     end
 
     test "encodes an empty map" do
       {:ok, schema} = AvroEx.parse_schema(~S({"type": "map", "values": "int"}))
-      {:ok, long_schema} = AvroEx.parse_schema(~S("long"))
-      {:ok, expected_count} = @test_module.encode(long_schema, 0)
-
-      assert {:ok, <<actual_count::8>>} = @test_module.encode(schema, %{})
-      assert expected_count == <<actual_count>>
+      assert {:ok, <<0>>} = @test_module.encode(schema, %{})
     end
   end
 
