@@ -164,20 +164,19 @@ defmodule AvroEx.Decode do
     do_decode(schema, context, rest)
   end
 
-  def do_decode(%Array{}, _context, <<0>>), do: {[], ""}
-
   def do_decode(%Array{items: item_schema}, %Context{} = context, data) when is_binary(data) do
     {count, buffer} = do_decode(%Primitive{type: :long}, context, data)
 
-    times = if count > 0, do: 1..count, else: []
-
-    {decoded_items, rest} =
-      Enum.reduce(times, {[], buffer}, fn _, {decoded_items, buffer} ->
-        {decoded_item, buffer} = do_decode(item_schema, context, buffer)
-        {[decoded_item | decoded_items], buffer}
-      end)
-
-    {Enum.reverse(decoded_items), rest}
+    if count > 0 do
+      {decoded_items, rest} =
+        Enum.reduce(1..count, {[], buffer}, fn _, {decoded_items, buffer} ->
+          {decoded_item, buffer} = do_decode(item_schema, context, buffer)
+          {[decoded_item | decoded_items], buffer}
+        end)
+      {Enum.reverse(decoded_items), String.slice(rest, 1..-1)}
+    else
+      {[], buffer}
+    end
   end
 
   def do_decode(%AvroEx.Schema.Map{}, _context, <<0>>), do: {%{}, ""}

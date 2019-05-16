@@ -174,11 +174,14 @@ defmodule AvroEx.Encode do
       size ->
         acc = do_encode(%Primitive{type: :long}, context, size)
 
-        Enum.reduce(data, acc, fn v, acc ->
-          value = do_encode(items, context, v)
+        encoded_array =
+          Enum.reduce(data, acc, fn v, acc ->
+            value = do_encode(items, context, v)
 
-          acc <> value
-        end)
+            acc <> value
+          end)
+
+        encoded_array <> <<0>>
     end
   end
 

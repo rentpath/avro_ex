@@ -309,39 +309,14 @@ defmodule AvroEx.Encode.Test do
   end
 
   describe "encode (array)" do
-    test "encodes the count as a long" do
+    test "properly encodes an array with length, items, and terminal byte" do
       {:ok, schema} = AvroEx.parse_schema(~S({"type": "array", "items": "int"}))
-      {:ok, long_schema} = AvroEx.parse_schema(~S("long"))
-      {:ok, expected_count} = @test_module.encode(long_schema, 3)
-
-      {:ok, <<actual_count::8, _rest::binary>>} = @test_module.encode(schema, [1, 2, 3])
-
-      assert expected_count == <<actual_count>>
-    end
-
-    test "encodes the remaining values" do
-      {:ok, schema} = AvroEx.parse_schema(~S({"type": "array", "items": "int"}))
-      {:ok, int_schema} = AvroEx.parse_schema(~S("int"))
-      items = [1, 2, 3]
-
-      ints =
-        items
-        |> Enum.map(fn item ->
-          {:ok, v} = @test_module.encode(int_schema, item)
-          v
-        end)
-        |> Enum.join()
-
-      assert {:ok, <<_count::8>> <> ^ints} = @test_module.encode(schema, items)
+      assert {:ok, <<6, 2, 4, 6, 0>>} = @test_module.encode(schema, [1, 2, 3])
     end
 
     test "encodes an empty array" do
       {:ok, schema} = AvroEx.parse_schema(~S({"type": "array", "items": "int"}))
-      {:ok, long_schema} = AvroEx.parse_schema(~S("long"))
-      {:ok, expected_count} = @test_module.encode(long_schema, 0)
-
-      assert {:ok, <<actual_count::8>>} = @test_module.encode(schema, [])
-      assert expected_count == <<actual_count>>
+      assert {:ok, <<0>>} = @test_module.encode(schema, [])
     end
   end
 
