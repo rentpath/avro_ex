@@ -16,7 +16,7 @@ defmodule AvroEx.Mixfile do
   end
 
   def application do
-    [extra_applications: [:logger]]
+    [extra_applications: [:ecto, :logger]]
   end
 
   defp aliases do
@@ -29,6 +29,7 @@ defmodule AvroEx.Mixfile do
       {:jason, "~> 1.1"},
 
       {:credo, "~> 1.0", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.6", only: :dev, runtime: false},
       {:ex_doc, "~> 0.18.0", only: :dev, runtime: false}
     ]
   end
@@ -37,7 +38,7 @@ defmodule AvroEx.Mixfile do
     [
       licenses: ["MIT"],
       maintainers: ["doomspork", "cjpoll"],
-      links: %{"Github" => "http://github.com/doomspork/avro_ex"}
+      links: %{"Github" => "http://github.com/beam-community/avro_ex"}
     ]
   end
 end
